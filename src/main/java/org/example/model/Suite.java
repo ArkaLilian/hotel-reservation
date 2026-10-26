@@ -1,14 +1,14 @@
 package org.example.model;
 
 public class Suite extends Room {
-    private static final int SUPPLEMENT_SUITE = 30;
+    private static final double SUPPLEMENT_SUITE = 30.0;
 
-    public Suite(int roomNumber, int capacity, int basePrice){
+    public Suite(int roomNumber, int capacity, double basePrice){
         super(roomNumber, capacity, basePrice);
     }
 
     @Override
-    public int getNightlyPrice() {
+    public double getNightlyPrice() {
         return getBasePrice() + SUPPLEMENT_SUITE;
     }
 

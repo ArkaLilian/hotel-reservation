@@ -5,9 +5,9 @@ import java.util.Objects;
 public abstract class Room {
     private final int roomNumber;
     private final int capacity;
-    private final int basePrice;
+    private final double basePrice;
 
-    public Room(int roomNumber, int capacity, int basePrice) {
+    public Room(int roomNumber, int capacity, double basePrice) {
         if (roomNumber <= 0) {
             throw new IllegalArgumentException("Le numéro de chambre doit être strictement positif");
         }
@@ -24,7 +24,7 @@ public abstract class Room {
         this.basePrice = basePrice;
     }
     //Méthodes abstraites :
-    public abstract int getNightlyPrice();
+    public abstract double getNightlyPrice();
     public abstract String getType();
 
     //Méthodes concrètes :
@@ -32,7 +32,7 @@ public abstract class Room {
         return roomNumber;
     }
     public int getCapacity() {return capacity;}
-    public int getBasePrice() {return basePrice;}
+    public double getBasePrice() {return basePrice;}
 
     public boolean canHost(int guests) {return guests <= capacity;}
 

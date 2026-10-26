@@ -2,13 +2,13 @@ package org.example.model;
 
 public class StandardRoom extends Room{
 
-    public StandardRoom(int roomNumber, int capacity, int basePrice){
+    public StandardRoom(int roomNumber, int capacity, double basePrice){
         super(roomNumber, capacity, basePrice);
     }
 
 
     @Override
-    public int getNightlyPrice() {
+    public double getNightlyPrice() {
         return getBasePrice();
     }
 

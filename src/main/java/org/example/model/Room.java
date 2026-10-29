@@ -7,7 +7,7 @@ public abstract class Room {
     private final int capacity;
     private final double basePrice;
 
-    public Room(int roomNumber, int capacity, double basePrice) {
+    protected Room(int roomNumber, int capacity, double basePrice) {
         if (roomNumber <= 0) {
             throw new IllegalArgumentException("Le numéro de chambre doit être strictement positif");
         }

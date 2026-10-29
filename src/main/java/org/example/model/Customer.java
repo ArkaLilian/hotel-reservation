@@ -1,5 +1,7 @@
 package org.example.model;
 
+import java.util.Objects;
+
 public class Customer {
     private final int id;
     private final String firstName;
@@ -27,6 +29,18 @@ public class Customer {
         }
         this.email = email;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof Customer customer)) return false;
+        return id == customer.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
+    }
+
     // Getters pour un client : Je suppose qu'un client ne change pas de Prénom, Nom, ID ou addresse mail donc pas besoin de setters ici
     public int getId() {return this.id;}
     public String getFirstName() {return this.firstName;}

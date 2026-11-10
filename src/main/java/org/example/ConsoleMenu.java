@@ -7,6 +7,7 @@ import org.example.model.Reservation;
 import org.example.model.Room;
 import org.example.service.PricingService;
 import org.example.service.ReservationService;
+import org.example.utils.DateFormats;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
@@ -69,8 +70,8 @@ public class ConsoleMenu {
     }
 
     private void searchAvailableRooms() {
-        LocalDate start = readDate("Date d'arrivée (AAAA-MM-JJ) : ");
-        LocalDate end = readDate("Date de départ (AAAA-MM-JJ) : ");
+        LocalDate start = readDate("Date d'arrivée (JJ/MM/AAAA) : ");
+        LocalDate end = readDate("Date de départ (JJ/MM/AAAA) : ");
         int guests = readInt("Nombre de personnes : ");
 
         List<Room> availableRooms = reservationService.findAvailableRooms(start, end, guests);
@@ -86,8 +87,8 @@ public class ConsoleMenu {
     private void bookRoom() throws RoomNotAvailableException {
         Customer customer = askCustomer();
         int roomNumber = readInt("Numéro de la chambre : ");
-        LocalDate start = readDate("Date d'arrivée (AAAA-MM-JJ) : ");
-        LocalDate end = readDate("Date de départ (AAAA-MM-JJ) : ");
+        LocalDate start = readDate("Date d'arrivée (JJ/MM/AAAA) : ");
+        LocalDate end = readDate("Date de départ (JJ/MM/AAAA) : ");
         int guests = readInt("Nombre de personnes : ");
 
         Reservation reservation = reservationService.book(customer, roomNumber, start, end, guests);
@@ -132,7 +133,7 @@ public class ConsoleMenu {
         System.out.printf("  n°%d | %s | chambre %d (%s) | du %s au %s (%d nuits) | %d pers. | %s | %.2f €%n",
                 reservation.getId(), reservation.getCustomer().getFullName(),
                 reservation.getRoom().getRoomNumber(), reservation.getRoom().getType(),
-                reservation.getCheckIn(), reservation.getCheckOut(), reservation.getNights(),
+                reservation.getCheckIn().format(DateFormats.FRENCH), reservation.getCheckOut().format(DateFormats.FRENCH), reservation.getNights(),
                 reservation.getNumberOfPeople(), reservation.getStatus(),
                 pricingService.computePrice(reservation));
     }
@@ -154,9 +155,9 @@ public class ConsoleMenu {
         while (true) {
             System.out.print(question);
             try {
-                return LocalDate.parse(scanner.nextLine().trim());
+                return LocalDate.parse(scanner.nextLine().trim(), DateFormats.FRENCH);
             } catch (DateTimeParseException e) {
-                System.out.println("Date invalide, format attendu : AAAA-MM-JJ (ex. 2026-12-20).");
+                System.out.println("Date invalide, format attendu : JJ/MM/AAAA (ex. 20/12/2026).");
             }
         }
     }

@@ -40,7 +40,7 @@ public class ReservationService {
         return Optional.ofNullable(rooms.get(number));
     }
 
-    // Libre = aucune réservation ACTIVE (R6 : les annulées ne comptent pas) de cette chambre ne chevauche la période
+    // Libre = aucune réservation ACTIVE (on active un flux .stream pour filtrer notre liste de reservations)
     public boolean isAvailable(Room room, LocalDate start, LocalDate end) {
         return reservations.stream()
                 .filter(Reservation::isActive)
@@ -48,7 +48,8 @@ public class ReservationService {
                 .noneMatch(r -> r.overlaps(start, end));
     }
 
-    // Chambres libres sur la période et assez grandes. Liste vide s'il n'y en a aucune (ce n'est pas une erreur)
+    // Chambres libres sur la période et assez grandes. Liste vide s'il n'y en a aucune (ce n'est pas une erreur ducoup)
+    // On refait un stream de la liste des chambres et on vérifie room.canHost(guest) = True et isAvailable(room, start, end= True aussi)
     public List<Room> findAvailableRooms(LocalDate start, LocalDate end, int guests) {
         return rooms.values().stream()
                 .filter(room -> room.canHost(guests))
@@ -56,23 +57,27 @@ public class ReservationService {
                 .sorted(Comparator.comparingInt(Room::getRoomNumber))
                 .toList();
     }
-
+    //On va creer une méthode qui réserve la chambre :
     public Reservation book(Customer customer, int roomNumber, LocalDate start, LocalDate end, int guests)
             throws RoomNotAvailableException {
-        // R4 : la chambre doit exister
+        // La chambre doit exister
         Room room = findRoom(roomNumber)
                 .orElseThrow(() -> new IllegalArgumentException("La chambre " + roomNumber + " n'existe pas"));
-        // R3 : assez de place
+
+        // Il doit y avoir assez de place
         if (!room.canHost(guests)) {
             throw new IllegalArgumentException("La chambre " + roomNumber + " ne peut pas accueillir " + guests + " personnes");
         }
-        // R1 (et dates/client null) : vérifiés par le constructeur de Reservation
+
+        // (dates/client null) : vérifiés par le constructeur de Reservation et checkOut strictement après checkIn (au moins 1 nuit)
         Reservation reservation = new Reservation(nextId, customer, room, start, end, guests, ReservationStatus.CONFIRMED);
-        // R2 (décision) : pas de réservation dans le passé
+
+        // Pas de réservation dans le passé
         if (start.isBefore(LocalDate.now())) {
             throw new IllegalArgumentException("Impossible de réserver dans le passé");
         }
-        // R5 : pas de chevauchement avec une réservation confirmée
+
+        // Pas de chevauchement avec une réservation confirmée
         if (!isAvailable(room, start, end)) {
             throw new RoomNotAvailableException(roomNumber, start, end);
         }
@@ -81,7 +86,7 @@ public class ReservationService {
         return reservation;
     }
 
-    // R7 : id inconnu ; R8 : déjà annulée -> IllegalStateException lancée par Reservation.cancel()
+    // Pas d'id inconnu et on vérifie si déjà annulée -> IllegalStateException levée avant par Reservation.cancel()
     public void cancel(int id) throws ReservationNotFoundException {
         Reservation reservation = reservations.stream()
                 .filter(r -> r.getId() == id)

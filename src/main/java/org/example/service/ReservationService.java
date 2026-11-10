@@ -51,9 +51,22 @@ public class ReservationService {
     // Chambres libres sur la période et assez grandes. Liste vide s'il n'y en a aucune (ce n'est pas une erreur ducoup)
     // On refait un stream de la liste des chambres et on vérifie room.canHost(guest) = True et isAvailable(room, start, end= True aussi)
     public List<Room> findAvailableRooms(LocalDate start, LocalDate end, int guests) {
-        return rooms.values().stream()
+        // Sans ces controles, 0 personne ou des dates inversées renverraient des chambres "libres"
+        if (guests <= 0) {
+            throw new IllegalArgumentException("Le nombre de personnes doit être positif");
+        }
+        if (!end.isAfter(start)) {
+            throw new IllegalArgumentException("La date de départ doit être après la date d'arrivée");
+        }
+        return getRooms().stream()
                 .filter(room -> room.canHost(guests))
                 .filter(room -> isAvailable(room, start, end))
+                .toList();
+    }
+
+    // Triées par numéro car une HashMap ne garde pas d'ordre et l'affichage changerait a chaque fois
+    public List<Room> getRooms() {
+        return rooms.values().stream()
                 .sorted(Comparator.comparingInt(Room::getRoomNumber))
                 .toList();
     }
